@@ -67,7 +67,7 @@ export const POST = async (req: Request): Promise<Response> => {
   });
 
   const streamTextResult = streamText({
-    model: google('gemini-2.5-flash-light'),
+    model: google('gemini-2.5-flash-lite'),
     messages: modelMessages,
     experimental_telemetry: {
       isEnabled: true,

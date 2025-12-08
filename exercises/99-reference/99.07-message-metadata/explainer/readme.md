@@ -19,7 +19,7 @@ We then have a standard `streamText` result here:
 
 ```ts
 const streamTextResult = streamText({
-  model: google('gemini-2.5-flash-light'),
+  model: google('gemini-2.5-flash-lite'),
   prompt: 'Hello, world!',
 });
 ```

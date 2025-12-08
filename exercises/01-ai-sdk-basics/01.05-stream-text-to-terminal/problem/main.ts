@@ -1,7 +1,7 @@
 import { google } from '@ai-sdk/google';
 import { streamText } from 'ai';
 
-const model = google('gemini-2.5-flash-light');
+const model = google('gemini-2.5-flash-lite');
 
 const prompt =
   'Give me the first paragraph of a story about an imaginary planet.';
