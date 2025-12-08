@@ -4,8 +4,9 @@ dist
 *.tsbuildinfo
 .vscode/*.code-snippets
 .env
-*.local.*
+*.local*
 .next
 next-env.d.ts
 .DS_Store
 /data
+.lh/
