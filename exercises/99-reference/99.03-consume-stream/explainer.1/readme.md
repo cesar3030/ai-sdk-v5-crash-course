@@ -11,7 +11,7 @@ import { streamText } from 'ai';
 console.log('Process starting...');
 
 const streamTextResult = streamText({
-  model: google('gemini-2.0-flash'),
+  model: google('gemini-2.5-flash-light'),
   prompt: 'Hello, world!',
   onFinish: () => {
     console.log('Stream finished!');
@@ -51,7 +51,7 @@ import { streamText } from 'ai';
 console.log('Process starting...');
 
 const streamTextResult = streamText({
-  model: google('gemini-2.0-flash'),
+  model: google('gemini-2.5-flash-light'),
   prompt: 'Hello, world!',
   onFinish: () => {
     console.log('Stream finished!');
@@ -88,7 +88,7 @@ import { streamText } from 'ai';
 console.log('Process starting...');
 
 const streamTextResult = streamText({
-  model: google('gemini-2.0-flash'),
+  model: google('gemini-2.5-flash-light'),
   prompt: 'Hello, world!',
   onFinish: () => {
     console.log('Stream finished!');
@@ -124,7 +124,7 @@ import { consumeStream, streamText } from 'ai';
 console.log('Process starting...');
 
 const streamTextResult = streamText({
-  model: google('gemini-2.0-flash'),
+  model: google('gemini-2.5-flash-light'),
   prompt: 'Hello, world!',
   onFinish: () => {
     console.log('Stream finished!');
