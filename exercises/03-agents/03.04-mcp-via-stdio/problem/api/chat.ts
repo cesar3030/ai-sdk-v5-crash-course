@@ -21,7 +21,7 @@ export const POST = async (req: Request): Promise<Response> => {
   const mcpClient = TODO;
 
   const result = streamText({
-    model: google('gemini-2.5-flash'),
+    model: google('gemini-2.5-flash-lite'),
     messages: convertToModelMessages(messages),
     system: `
       You are a helpful assistant that can use the GitHub API to interact with the user's GitHub account.

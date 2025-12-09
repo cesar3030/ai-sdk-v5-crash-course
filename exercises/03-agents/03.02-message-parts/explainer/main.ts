@@ -8,7 +8,7 @@ const PROMPT = `
 `;
 
 const result = streamText({
-  model: google('gemini-2.5-flash'),
+  model: google('gemini-2.5-flash-lite'),
   system: `
     You are a helpful assistant that can use a sandboxed file system to create, edit and delete files.
 

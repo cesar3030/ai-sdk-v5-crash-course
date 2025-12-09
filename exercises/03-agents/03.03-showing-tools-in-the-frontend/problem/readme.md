@@ -8,7 +8,7 @@ The tools are currently defined within the [`streamText`](./api/chat.ts) functio
 
 ```ts
 const result = streamText({
-  model: google('gemini-2.5-flash'),
+  model: google('gemini-2.5-flash-lite'),
   messages: convertToModelMessages(messages),
   system: `...`,
   tools: {
