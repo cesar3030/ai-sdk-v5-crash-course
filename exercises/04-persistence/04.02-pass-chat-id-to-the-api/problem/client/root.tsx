@@ -10,7 +10,9 @@ const App = () => {
 
   console.log(searchParams.get('chatId'));
 
-  const { messages, sendMessage } = useChat({});
+  const { messages, sendMessage, id } = useChat({
+    id: searchParams.get('chatId') ?? crypto.randomUUID(),
+  });
 
   const [input, setInput] = useState('Hello, how are you?');
 
