@@ -1,15 +1,20 @@
-// TODO: declare the otelSDK variable using the NodeSDK class
-// from the @opentelemetry/sdk-node package,
-// and pass it the LangfuseExporter instance
-// from the langfuse-vercel package as the traceExporter
-export const otelSDK = TODO;
+import {
+  LangfuseSpanProcessor,
+  type ShouldExportSpan,
+} from '@langfuse/otel';
+import { NodeTracerProvider } from '@opentelemetry/sdk-trace-node';
 
-otelSDK.start();
+// Optional: filter our NextJS infra spans
+const shouldExportSpan: ShouldExportSpan = (span) => {
+  return span.otelSpan.instrumentationScope.name !== 'next.js';
+};
 
-// TODO: declare the langfuse variable using the Langfuse class
-// from the langfuse package, and pass it the following arguments:
-// - environment: process.env.NODE_ENV
-// - publicKey: process.env.LANGFUSE_PUBLIC_KEY
-// - secretKey: process.env.LANGFUSE_SECRET_KEY
-// - baseUrl: process.env.LANGFUSE_BASE_URL
-export const langfuse = TODO;
+const langfuseSpanProcessor = new LangfuseSpanProcessor({
+  shouldExportSpan,
+});
+
+const tracerProvider = new NodeTracerProvider({
+  spanProcessors: [langfuseSpanProcessor],
+});
+
+tracerProvider.register();

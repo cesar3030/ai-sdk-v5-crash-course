@@ -1,4 +1,5 @@
 import { google } from '@ai-sdk/google';
+import './langfuse.ts';
 import {
   convertToModelMessages,
   createUIMessageStreamResponse,
@@ -7,7 +8,6 @@ import {
   type ModelMessage,
   type UIMessage,
 } from 'ai';
-import { langfuse } from './langfuse.ts';
 
 export const POST = async (req: Request): Promise<Response> => {
   const body = await req.json();
@@ -16,11 +16,6 @@ export const POST = async (req: Request): Promise<Response> => {
 
   const modelMessages: ModelMessage[] =
     convertToModelMessages(messages);
-
-  // TODO: declare the trace variable using the langfuse.trace method,
-  // and pass it the following arguments:
-  // - sessionId: body.id
-  const trace = TODO;
 
   const mostRecentMessage = messages[messages.length - 1];
 
@@ -62,7 +57,10 @@ export const POST = async (req: Request): Promise<Response> => {
     // - isEnabled: true
     // - functionId: 'your-name-here'
     // - metadata: { langfuseTraceId: trace.id }
-    experimental_telemetry: TODO,
+    experimental_telemetry: {
+      isEnabled: true,
+      functionId: 'post-generateText',
+    },
   });
 
   const streamTextResult = streamText({
@@ -72,7 +70,10 @@ export const POST = async (req: Request): Promise<Response> => {
     // - isEnabled: true
     // - functionId: 'your-name-here'
     // - metadata: { langfuseTraceId: trace.id }
-    experimental_telemetry: TODO,
+    experimental_telemetry: {
+      isEnabled: true,
+      functionId: 'post-streamText',
+    },
   });
 
   const stream = streamTextResult.toUIMessageStream({
@@ -83,7 +84,8 @@ export const POST = async (req: Request): Promise<Response> => {
 
       // TODO: flush the langfuse traces using the langfuse.flushAsync method
       // and await the result
-      TODO;
+
+      // await langfuse.flushAsync();
     },
   });
 
