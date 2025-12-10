@@ -1,7 +1,8 @@
 import { google } from '@ai-sdk/google';
+import { tavily } from '@tavily/core';
 import { generateText } from 'ai';
 import { evalite } from 'evalite';
-
+type Link = (typeof links)[number];
 const links = [
   {
     title: 'TypeScript 5.8',
@@ -51,14 +52,39 @@ evalite('TS Release Notes', {
     },
   ],
   task: async (input) => {
+    const pages = await getReleasesPageContent(links);
     const capitalResult = await generateText({
       model: google('gemini-2.5-flash-lite'),
       prompt: `
         You are a helpful assistant that can answer questions about TypeScript releases.
 
+        <background-data>
+          ${pages
+            .map(
+              ({ title, url, content }) => `
+            <release>
+             <version>${title}</version>
+             <url>${url}</url>
+             <content>${content}</content>
+
+            </release>
+          `,
+            )
+            .join('\n')}
+        </background-data>
+
+        <rules>
+          - the output always includes the url of the article used to create the summary
+          - the summary should always be shorter than 500 characters
+        </rules>
+
         <question>
         ${input}
         </question>
+
+        <output-format>
+            the summary should just be 500chars max
+        </output-format>
       `,
     });
 
@@ -68,14 +94,35 @@ evalite('TS Release Notes', {
     {
       name: 'Includes Markdown Links',
       scorer: ({ input, output, expected }) => {
-        // TODO: check if the output includes markdown links
+        return output.match(/\[[^\]]+\]\([^)]+\)/g) ? 1 : 0;
       },
     },
     {
       name: 'Output length',
       scorer: ({ input, output, expected }) => {
-        // TODO: check if the output is less than 500 characters
+        return output.length <= 500 ? 1 : 0;
       },
     },
   ],
 });
+
+async function getReleasesPageContent(
+  links: Link[],
+): Promise<{ title: string; url: string; content: string }[]> {
+  const tavilyClient = tavily({
+    apiKey: process.env.TAVILY_API_KEY,
+  });
+  const scrapeResult = await tavilyClient.extract(
+    links.map(({ url }) => url),
+  );
+
+  const releaseTitleByUrl = Object.fromEntries(
+    links.map(({ title, url }) => [url, title]),
+  );
+
+  return scrapeResult.results.map(({ url, rawContent }) => ({
+    url,
+    content: rawContent,
+    title: releaseTitleByUrl[url] ?? '',
+  }));
+}
