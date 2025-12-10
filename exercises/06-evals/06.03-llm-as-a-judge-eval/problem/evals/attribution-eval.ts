@@ -34,8 +34,42 @@ export const attributionToChainOfThoughtPaper = createScorer<
     const result = await generateObject({
       model: google('gemini-2.5-flash-lite'),
       system: ATTRIBUTION_PROMPT,
-      messages: TODO, // TODO: Pass the chain of thought paper, the question and the answer given
-      schema: TODO, // TODO: Define the schema for the response
+      messages: [
+        {
+          role: 'user',
+          content: [
+            {
+              type: 'text',
+              text: `
+              the original question is:
+              ${input}
+        
+              The answer to evaluate is:
+              ${output}
+              `,
+            },
+            {
+              type: 'file',
+              data: chainOfThoughtPaper,
+              mediaType: 'application/pdf',
+            },
+          ],
+        },
+      ], // TODO: Pass the chain of thought paper, the question and the answer given
+      schema: z.object({
+        score: z
+          .union([
+            z.literal('A'),
+            z.literal('B'),
+            z.literal('C'),
+            z.literal('D'),
+          ])
+          .describe(
+            'the score given by the LLM to the tested output',
+          ),
+        feedback: z.string(),
+      }),
+      // TODO: Define the schema for the response
     });
 
     // NOTE: it's important to use a string-based score for the
