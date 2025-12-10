@@ -11,7 +11,9 @@ const App = () => {
   const [input, setInput] = useState(``);
 
   // TODO: Get the data-suggestion part from the last message
-  const latestSuggestion: string | undefined = TODO;
+  const latestSuggestion: string | undefined = messages[
+    messages.length - 1
+  ]?.parts.find(({ type }) => type === 'data-suggestion')?.data;
 
   return (
     <Wrapper>

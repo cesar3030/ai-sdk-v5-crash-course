@@ -12,7 +12,7 @@ export type MyMessage = UIMessage<
   never,
   {
     // TODO: Define the type for the suggestion data part
-    TODO: TODO;
+    suggestion: string;
   }
 >;
 
@@ -56,15 +56,19 @@ export const POST = async (req: Request): Promise<Response> => {
 
       // NOTE: Create a variable to store the full suggestion,
       // since we need to store the full suggestion each time
-      let fullSuggestion = TODO;
+      let fullSuggestion = '';
 
       for await (const chunk of followupSuggestionsResult.textStream) {
         // TODO: Append the chunk to the full suggestion
-        fullSuggestion += TODO;
+        fullSuggestion += chunk;
 
         // TODO: Call writer.write and write the data part
         // to the stream
-        TODO;
+        writer.write({
+          type: 'data-suggestion',
+          id: dataPartId,
+          data: fullSuggestion,
+        });
       }
     },
   });
