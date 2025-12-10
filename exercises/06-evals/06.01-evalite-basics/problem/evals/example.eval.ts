@@ -1,3 +1,5 @@
+import { google } from '@ai-sdk/google';
+import { streamText } from 'ai';
 import { evalite } from 'evalite';
 
 evalite('Capitals', {
@@ -16,9 +18,12 @@ evalite('Capitals', {
     },
   ],
   task: async (input) => {
-    const capitalResult = TODO; // Implement this!
+    const result = streamText({
+      model: google('gemini-2.5-flash-lite'),
+      prompt: input,
+    });
 
-    return capitalResult.text;
+    return result.text;
   },
   scorers: [
     {
