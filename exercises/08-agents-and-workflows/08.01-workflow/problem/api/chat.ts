@@ -33,11 +33,41 @@ export const POST = async (req: Request): Promise<Response> => {
   const body: { messages: UIMessage[] } = await req.json();
   const { messages } = body;
 
-  const writeSlackResult = TODO; // Write Slack message
+  const model = google('gemini-2.5-flash-lite');
 
-  const evaluateSlackResult = TODO; // Evaluate Slack message
+  const writeSlackResult = await generateText({
+    model,
+    system: WRITE_SLACK_MESSAGE_FIRST_DRAFT_SYSTEM,
+    prompt: `Conversation history: \n${formatMessageHistory(messages)}`,
+  }); // Write Slack message
 
-  const finalSlackAttempt = TODO; // Write final Slack message
+  const generatedSlackMessage = writeSlackResult.text;
+  // eslint-disable-next-line no-console
+  console.log(
+    `\n\ngeneretedSlackMessage => `,
+    generatedSlackMessage,
+  );
+  const evaluateSlackResult = await generateText({
+    model,
+    system: EVALUATE_SLACK_MESSAGE_SYSTEM,
+    prompt: `Evaluate this slack message: \n${generatedSlackMessage}`,
+  }); // Evaluate Slack message
+
+  // eslint-disable-next-line no-console
+  console.log(
+    `\n\nevaluateSlackResult => `,
+    evaluateSlackResult.text,
+  );
+
+  const finalSlackAttempt = streamText({
+    model,
+    system: WRITE_SLACK_MESSAGE_FINAL_SYSTEM,
+    prompt: `Improve the given slack message taking into account the evaluation result.
+    ###
+    Slack message:\n${generatedSlackMessage}
+    ###
+    Evaluation result:\n${evaluateSlackResult.text}`,
+  }); // Write final Slack message
 
   return finalSlackAttempt.toUIMessageStreamResponse();
 };
