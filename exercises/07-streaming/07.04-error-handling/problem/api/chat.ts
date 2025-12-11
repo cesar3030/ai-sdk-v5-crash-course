@@ -18,13 +18,13 @@ export const POST = async (req: Request): Promise<Response> => {
     onError(error) {
       // TODO: Check if the error is a RetryError using:
       // RetryError.isInstance(error)
-      if (TODO) {
+      if (RetryError.isInstance(error)) {
         // TODO: If it is, return a message that tells the user to try again
-        return TODO;
+        return 'Please retry';
       }
 
       // TODO: Return a default message if the error is not a RetryError
-      return TODO;
+      return 'Something went wrong, soooooo wrong!';
     },
   });
 
