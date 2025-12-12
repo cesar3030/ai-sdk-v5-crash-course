@@ -2,9 +2,11 @@ import { google } from '@ai-sdk/google';
 import {
   createUIMessageStream,
   createUIMessageStreamResponse,
+  streamObject,
   streamText,
   type UIMessage,
 } from 'ai';
+import z from 'zod';
 
 export type MyMessage = UIMessage<
   unknown,
@@ -36,6 +38,10 @@ const EVALUATE_SLACK_MESSAGE_SYSTEM = `You are evaluating the Slack message prod
   Evaluation criteria:
   - The Slack message should be written in a way that is easy to understand.
   - It should be appropriate for a professional Slack conversation.
+
+  Output format:
+  you should output a js object with a boolean attribute "isGoodEnough" set to true if the draft was properly written else wise return false.
+  If the "isGoodEnough: attribute is set to false, add another attribute called "feedback" set to a string holding the explanations of what went wrong
 `;
 
 export const POST = async (req: Request): Promise<Response> => {
@@ -88,7 +94,7 @@ export const POST = async (req: Request): Promise<Response> => {
         // TODO: change this to streamObject, and get it to return
         // the feedback as a string, as well as whether we should
         // break the loop early (that the message is good enough)
-        const evaluateSlackResult = streamText({
+        const evaluateSlackResult = streamObject({
           model: google('gemini-2.5-flash-lite'),
           system: EVALUATE_SLACK_MESSAGE_SYSTEM,
           prompt: `
@@ -101,23 +107,38 @@ export const POST = async (req: Request): Promise<Response> => {
             Previous feedback (if any):
             ${mostRecentFeedback}
           `,
+          schema: z.object({
+            feedback: z.string().optional(),
+            isGoodEnough: z.boolean(),
+          }),
         });
 
         const feedbackId = crypto.randomUUID();
 
-        let feedback = '';
+        let isGoodEnough = false;
+        let feedback;
 
-        for await (const part of evaluateSlackResult.textStream) {
-          feedback += part;
+        for await (const part of evaluateSlackResult.partialObjectStream) {
+          if (part.isGoodEnough) {
+            isGoodEnough = true;
+            break;
+          }
 
-          writer.write({
-            type: 'data-slack-message-feedback',
-            data: feedback,
-            id: feedbackId,
-          });
+          if (part.feedback) {
+            feedback = part.feedback;
+            writer.write({
+              type: 'data-slack-message-feedback',
+              data: feedback,
+              id: feedbackId,
+            });
+          }
         }
 
-        mostRecentFeedback = feedback;
+        if (isGoodEnough) {
+          break;
+        }
+
+        mostRecentFeedback = feedback ?? '';
 
         step++;
       }
